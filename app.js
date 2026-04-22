@@ -42,6 +42,7 @@ const btnStart       = document.getElementById("btn-start");
 const btnStop        = document.getElementById("btn-stop");
 const btnGenerate    = document.getElementById("btn-generate");
 const btnDownload    = document.getElementById("btn-download");
+const btnTranscript  = document.getElementById("btn-transcript");
 const statusBadge    = document.getElementById("status-badge");
 const statusText     = document.getElementById("status-text");
 const sessionClock   = document.getElementById("session-clock");
@@ -322,10 +323,11 @@ btnStart.addEventListener("click", async () => {
   // ── Update UI ──
   setStatus("listening", "Listening…");
   waveIndicator.classList.add("active");
-  btnStart.disabled    = true;
-  btnStop.disabled     = false;
-  btnGenerate.disabled = true;
-  btnDownload.disabled = true;
+  btnStart.disabled      = true;
+  btnStop.disabled       = false;
+  btnGenerate.disabled   = true;
+  btnDownload.disabled   = true;
+  btnTranscript.disabled = true;
 
   footerInfo.textContent = `Recording started · ${formatTimestamp(sessionStart)}`;
 });
@@ -387,8 +389,9 @@ btnStop.addEventListener("click", async () => {
   if (!finalTranscript || finalTranscript.length < 10) {
     setStatus("error", "No Speech Detected");
     showAlert("No speech was detected. Make sure your microphone is working, or enable tab audio sharing for browser/Zoom audio.", "error");
-    btnStart.disabled    = false;
-    btnGenerate.disabled = true;
+    btnStart.disabled      = false;
+    btnGenerate.disabled   = true;
+    btnTranscript.disabled = true;
     return;
   }
 
@@ -396,9 +399,10 @@ btnStop.addEventListener("click", async () => {
   hideAlert();
   showAlert(`✅ Recording complete. ${finalTranscript.split(" ").length} words captured. Click "Generate Minutes" to create your MoM.`, "success");
 
-  btnStart.disabled    = false;
-  btnGenerate.disabled = false;
-  btnDownload.disabled = true;
+  btnStart.disabled      = false;
+  btnGenerate.disabled   = false;
+  btnDownload.disabled   = true;
+  btnTranscript.disabled = false;
 
   footerInfo.textContent = `Recording stopped · Duration: ${formatDuration(elapsedSeconds)}`;
 });
@@ -469,6 +473,23 @@ btnDownload.addEventListener("click", () => {
 
   downloadFile(generatedMarkdown, "minute_of_meeting.md", "text/markdown");
   showAlert("✅ Downloading minute_of_meeting.md …", "success");
+});
+
+btnTranscript.addEventListener("click", () => {
+  const transcript = finalCombinedTranscript
+    || speechMic?.fullTranscript?.trim()
+    || transcriptEl.innerText?.trim()
+    || "";
+
+  if (!transcript) {
+    showAlert("No transcript to download. Record a meeting first.", "warning");
+    return;
+  }
+
+  const timestamp = formatTimestamp(sessionStart || new Date());
+  const content = `MeetScribe — Transcript\n${timestamp}\n${"=".repeat(40)}\n\n${transcript}`;
+  downloadFile(content, "transcript.txt", "text/plain");
+  showAlert("✅ Downloading transcript.txt …", "success");
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
