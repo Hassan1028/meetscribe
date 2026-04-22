@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>MeetScribe Icon Generator</title>
+  <style>
+    body { font-family: sans-serif; background: #0a0b0d; color: #e8eaf0; padding: 40px; }
+    h1 { color: #00e5a0; margin-bottom: 8px; }
+    p  { color: #7a8394; margin-bottom: 32px; font-size: 14px; }
+    .grid { display: flex; gap: 32px; align-items: flex-end; flex-wrap: wrap; }
+    .item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    canvas { border: 1px solid #252930; border-radius: 4px; }
+    a.dl {
+      display: block; padding: 8px 16px; background: rgba(0,229,160,0.1);
+      border: 1px solid rgba(0,229,160,0.4); border-radius: 6px;
+      color: #00e5a0; text-decoration: none; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.05em; text-align: center;
+    }
+    a.dl:hover { background: rgba(0,229,160,0.2); }
+    .label { font-size: 11px; color: #454d5c; }
+    .note { margin-top: 40px; padding: 16px; background: #111318; border: 1px solid #252930;
+            border-radius: 8px; font-size: 13px; color: #7a8394; line-height: 1.7; }
+    .note code { color: #00e5a0; background: #16191f; padding: 2px 6px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>MeetScribe Icon Generator</h1>
+  <p>Click each download link to save the PNG. Place all files in the <code>icons/</code> folder.</p>
+  <div class="grid" id="grid"></div>
+  <div class="note">
+    After downloading, add this to <code>manifest.json</code> inside the root object:<br/><br/>
+    <code>"icons": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" }</code><br/><br/>
+    Also add inside the <code>"action"</code> block:<br/><br/>
+    <code>"default_icon": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" }</code>
+  </div>
+
+  <script>
+    function drawIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const s = size / 128;
+
+      // Rounded background
+      const bg = 22 * s;
+      ctx.fillStyle = '#111318';
+      ctx.beginPath();
+      ctx.moveTo(bg, 0);
+      ctx.lineTo(size - bg, 0);
+      ctx.quadraticCurveTo(size, 0, size, bg);
+      ctx.lineTo(size, size - bg);
+      ctx.quadraticCurveTo(size, size, size - bg, size);
+      ctx.lineTo(bg, size);
+      ctx.quadraticCurveTo(0, size, 0, size - bg);
+      ctx.lineTo(0, bg);
+      ctx.quadraticCurveTo(0, 0, bg, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      // Green mic
+      const cx = size / 2;
+      ctx.strokeStyle = '#00e5a0';
+      ctx.lineWidth = Math.max(1, 8 * s);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      const mw = 20 * s, mt = 22 * s, mb = 70 * s, mr = 20 * s;
+      ctx.beginPath();
+      ctx.moveTo(cx - mw, mt + mr);
+      ctx.quadraticCurveTo(cx - mw, mt, cx, mt);
+      ctx.quadraticCurveTo(cx + mw, mt, cx + mw, mt + mr);
+      ctx.lineTo(cx + mw, mb - mr);
+      ctx.quadraticCurveTo(cx + mw, mb, cx, mb);
+      ctx.quadraticCurveTo(cx - mw, mb, cx - mw, mb - mr);
+      ctx.closePath();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(cx, mb, 28 * s, 0, Math.PI, false);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(cx, mb + 28 * s);
+      ctx.lineTo(cx, 106 * s);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(cx - 22 * s, 106 * s);
+      ctx.lineTo(cx + 22 * s, 106 * s);
+      ctx.stroke();
+
+      return canvas;
+    }
+
+    const sizes = [16, 32, 48, 128];
+    const grid = document.getElementById('grid');
+
+    sizes.forEach(size => {
+      const canvas = drawIcon(size);
+      const a = document.createElement('a');
+      a.className = 'dl';
+      a.href = canvas.toDataURL('image/png');
+      a.download = `icon-${size}.png`;
+      a.textContent = `⬇ icon-${size}.png`;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'item';
+
+      const label = document.createElement('div');
+      label.className = 'label';
+      label.textContent = `${size}×${size}`;
+
+      wrap.appendChild(canvas);
+      wrap.appendChild(label);
+      wrap.appendChild(a);
+      grid.appendChild(wrap);
+    });
+  </script>
+</body>
+</html>
