@@ -428,7 +428,7 @@ btnGenerate.addEventListener("click", async () => {
   }
 
   hideAlert();
-  showLoading("Generating Minutes of Meeting…", "Sending transcript to Gemini 1.5 Flash 8B");
+  showLoading("Generating Minutes of Meeting…", "Sending transcript to Gemini 2.5 Flash");
   btnGenerate.disabled = true;
   setStatus("processing", "AI Processing…");
 
